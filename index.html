@@ -190,9 +190,17 @@ async function callProxy(model, system, user, max_tokens=700) {
       body: JSON.stringify({ model, system, user, max_tokens }),
     });
     const d = await r.json();
-    return d.text || '';
+    if(d.error) {
+      addLog(`[${model}] API 오류: ${d.error.slice(0,60)}`, '#fb4d6d');
+      return '';
+    }
+    if(!d.text) {
+      addLog(`[${model}] 빈 응답: ${JSON.stringify(d).slice(0,60)}`, '#fb923c');
+      return '';
+    }
+    return d.text;
   } catch(e) {
-    addLog('프록시 오류: ' + e.message?.slice(0,40), '#fb4d6d');
+    addLog(`[${model}] 프록시 오류: ${e.message?.slice(0,50)}`, '#fb4d6d');
     return '';
   }
 }
